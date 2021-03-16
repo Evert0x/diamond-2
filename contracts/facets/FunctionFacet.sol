@@ -4,15 +4,15 @@ pragma solidity ^0.7.1;
 import "../libraries/LibDiamond.sol";
 
 contract FunctionFacet {
-    function updateFunctionMapping(bytes4[] memory from, bytes4[] memory to) external {
+    function updateFunctionMapping(bytes4[] memory extern, bytes4[] memory intern) external {
         LibDiamond.enforceIsContractOwner();
-        require(from.length == to.length, "UNEQUAL_LENGTH");
-        for (uint256 i; i < from.length; i++) {
-            LibDiamond.setFunctionMappping(from[i], to[i]);
+        require(extern.length == intern.length, "UNEQUAL_LENGTH");
+        for (uint256 i; i < extern.length; i++) {
+            LibDiamond.setFunctionMappping(extern[i], intern[i]);
         }
     }
 
-    function getFunctionMapping(bytes4 from) external view returns (bytes4) {
-        return LibDiamond.getFunctionMapping(from);
+    function getFunctionMapping(bytes4 extern) external view returns (bytes4) {
+        return LibDiamond.getFunctionMapping(extern);
     }
 }

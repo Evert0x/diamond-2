@@ -20,16 +20,16 @@ contract Diamond {
     // this avoids stack too deep errors
     struct DiamondArgs {
         address owner;
-        bytes4[] from;
-        bytes4[] to;
+        bytes4[] extern;
+        bytes4[] intern;
     }
 
     constructor(IDiamondCut.FacetCut[] memory _diamondCut, DiamondArgs memory _args) payable {
         LibDiamond.diamondCut(_diamondCut, address(0), new bytes(0));
         LibDiamond.setContractOwner(_args.owner);
-        require(_args.from.length == _args.to.length, "UNEQUAL_LENGTH");
-        for (uint256 i; i < _args.from.length; i++) {
-            LibDiamond.setFunctionMappping(_args.from[i], _args.to[i]);
+        require(_args.extern.length == _args.intern.length, "UNEQUAL_LENGTH");
+        for (uint256 i; i < _args.extern.length; i++) {
+            LibDiamond.setFunctionMappping(_args.extern[i], _args.intern[i]);
         }
 
         LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
@@ -49,11 +49,13 @@ contract Diamond {
         assembly {
             ds.slot := position
         }
-        address facet = address(bytes20(ds.facets[msg.sig]));
+
         bytes4 func = ds.functionMapping[msg.sig];
         if (func == bytes4(0)) {
             func = msg.sig;
         }
+        address facet = address(bytes20(ds.facets[func]));
+
 
         require(facet != address(0), "Diamond: Function does not exist");
         assembly {
