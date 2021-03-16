@@ -30,6 +30,8 @@ library LibDiamond {
         mapping(bytes4 => bool) supportedInterfaces;
         // owner of the contract
         address contractOwner;
+        // Mapping of function sigs
+        mapping(bytes4 => bytes4) functionMapping;
     }
 
     function diamondStorage() internal pure returns (DiamondStorage storage ds) {
@@ -39,7 +41,20 @@ library LibDiamond {
         }
     }
 
+    event FunctionMappingUpdated(bytes4 from, bytes4 prev, bytes4 current);
     event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
+
+    function setFunctionMappping(bytes4 from, bytes4 to) internal {
+        DiamondStorage storage ds = diamondStorage();
+        emit FunctionMappingUpdated(from, ds.functionMapping[from], to);
+
+        ds.functionMapping[from] = to;
+    }
+
+    function getFunctionMapping(bytes4 from) internal view returns(bytes4) {
+        DiamondStorage storage ds = diamondStorage();
+        return ds.functionMapping[from];
+    }
 
     function setContractOwner(address _newOwner) internal {
         DiamondStorage storage ds = diamondStorage();
